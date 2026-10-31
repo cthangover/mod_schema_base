@@ -55,7 +55,7 @@ namespace Cthangover.Mods.Schemas
                 if (string.IsNullOrEmpty(value))
                     continue;
                 // The DSL splits a token at its first '=' after reading it whole, and quotes
-                // only work at the start of a token: a value with spaces quotes the pair.
+                // quoting the complete pair also supports values with spaces.
                 line.Append(' ').Append(Quote(field.Key + "=" + value));
             }
         }

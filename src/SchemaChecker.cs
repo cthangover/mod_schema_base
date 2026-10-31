@@ -4,6 +4,7 @@ namespace Cthangover.Mods.Schemas
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using Cthangover.Mods.Stats.Formulas;
 
     /// <summary>
     /// Checks values against field schemas: unknown parameters, missing required ones,
@@ -59,8 +60,29 @@ namespace Cthangover.Mods.Schemas
                 return issues;
             }
             value = value.Trim();
+            // Runtime templates are resolved by the dialog, before an action sees its parameters.
+            // Expression fields instead parse variable references as syntax, without evaluating them.
+            if (!string.Equals(field.Type, "expression", StringComparison.OrdinalIgnoreCase) && value.Contains("${"))
+            {
+                var start = 0;
+                while ((start = value.IndexOf("${", start, StringComparison.Ordinal)) >= 0)
+                {
+                    var end = value.IndexOf('}', start + 2);
+                    if (end < 0 || string.IsNullOrWhiteSpace(value.Substring(start + 2, end - start - 2)) || value.Substring(start + 2, end - start - 2).Contains('{'))
+                    {
+                        issues.Add(new SchemaIssue(true, "SCHEMA_BAD_VALUE", $"'{owner}': '{field.Key}' has an invalid variable reference"));
+                        break;
+                    }
+                    start = end + 1;
+                }
+                return issues;
+            }
             switch (field.Type?.ToLowerInvariant())
             {
+                case "expression":
+                    if (!Formula.TryParse(value, out _, out var expressionError))
+                        issues.Add(new SchemaIssue(true, "SCHEMA_BAD_VALUE", $"'{owner}': '{field.Key}': {expressionError}"));
+                    break;
                 case "int":
                     if (!int.TryParse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out _))
                         issues.Add(new SchemaIssue(true, "SCHEMA_BAD_VALUE", $"'{owner}': '{field.Key}' must be a whole number, got '{value}'"));

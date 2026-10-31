@@ -41,6 +41,16 @@ namespace Cthangover.Mods.Schemas.Tests
             ModAssert.True(Codes(new Dictionary<string, string> { ["id"] = "sword", ["enemies"] = "wolf,bear" }).SequenceEqual(new[] { "E:SCHEMA_UNKNOWN_REF" }), "one unknown in a list");
         }
 
+        [ModTest("checker/runtime_templates_and_expression_syntax")]
+        static void DynamicValues(ModTestContext ctx)
+        {
+            ModAssert.Equal(0, Codes(new Dictionary<string,string> { ["id"]="${item}", ["count"]="${money}" }).Count, "runtime values are not static reference or integer errors");
+            ModAssert.True(Codes(new Dictionary<string,string> { ["id"]="sword", ["count"]="${money" }).Contains("E:SCHEMA_BAD_VALUE"), "broken template rejected");
+            var field = new FieldSchema { Key="value", Type="expression", Required=true };
+            ModAssert.Equal(0, SchemaChecker.CheckValue("cset",field,"rnd(3,5)+${Value}",null).Count, "syntax only: no variables read or randomness consumed");
+            ModAssert.Equal(1, SchemaChecker.CheckValue("cset",field,"rnd(3)+",null).Count, "arity and syntax errors are visible in the palette");
+        }
+
         [ModTest("checker/no_callback_skips_references")]
         static void NoCallbackSkipsReferences(ModTestContext ctx)
         {

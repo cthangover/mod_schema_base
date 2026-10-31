@@ -95,3 +95,7 @@ The validator reports the same things as `SCHEMA_MISSING_PARAM`, `SCHEMA_UNKNOWN
 1. **An action is missing from the palette.** No loaded mod describes it; the action still works in scenarios.
 2. **A field shows as a plain text box.** Its type is unknown, or the field has no description at all (the Data Editor then shows it under other fields as JSON).
 3. **A form ignores your schema.** A mod later in the load order describes the same action and replaced yours.
+
+## Shared expressions
+
+Numeric expressions are supplied by `expressions_base`. See the [Expression Engine guide](../../expressions_base/docs/en.md) for syntax, strict assignments and mod-defined strategies.

@@ -11,5 +11,7 @@
   "test_sources": [
     "tests/*.cs"
   ],
-  "depends": []
+  "depends": [
+    "expressions_base>=1"
+  ]
 }
