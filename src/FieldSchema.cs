@@ -40,8 +40,14 @@ namespace Cthangover.Mods.Schemas
         /// <summary>Allowed values of a <c>choice</c>.</summary>
         public List<string> Options { get; set; }
 
-        /// <summary>The entity kind of a <c>ref</c>, <c>ref_list</c> or the keys of a <c>map</c>.</summary>
+        /// <summary>The entity kind of a <c>ref</c>, <c>ref_list</c> or the keys of a <c>map</c>; for a <c>pick</c> the kind whose entities hold the options (<see cref="From"/>).</summary>
         public string Kind { get; set; }
+
+        /// <summary>
+        /// For a <c>pick</c>: the field of the entities of <see cref="Kind"/> whose values (a string, or a list of strings) are the
+        /// options. A pick names no entity: its values are not checked as references (equip types are values an <c>Accepts</c> list holds).
+        /// </summary>
+        public string From { get; set; }
 
         /// <summary>The file group of a <c>picture</c> (<c>items</c>, <c>characters</c>).</summary>
         public string Group { get; set; }

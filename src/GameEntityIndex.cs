@@ -17,6 +17,7 @@ namespace Cthangover.Mods.Schemas
     public static class GameEntityIndex
     {
         private static Dictionary<string, SortedDictionary<string, string>> byKind;
+        private static Dictionary<string, SortedSet<string>> valuesByField;
 
         /// <summary>Ids of <paramref name="kind"/> with their name keys, sorted by id.</summary>
         public static IReadOnlyDictionary<string, string> Of(string kind)
@@ -44,7 +45,95 @@ namespace Cthangover.Mods.Schemas
         }
 
         /// <summary>Forgets the index (data changed on disk).</summary>
-        public static void Refresh() => byKind = null;
+        public static void Refresh()
+        {
+            byKind = null;
+            valuesByField = null;
+        }
+
+        /// <summary>
+        /// The values a field holds across the entities of a kind (a string, or the strings of a list; a comma list is split):
+        /// the options of a <c>pick</c> field. Read once from the mods' data, then kept until <see cref="Refresh"/>.
+        /// </summary>
+        public static IReadOnlyCollection<string> ValuesOf(string kind, string field)
+        {
+            if (string.IsNullOrEmpty(kind) || string.IsNullOrEmpty(field))
+                return Array.Empty<string>();
+            valuesByField ??= new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
+            var key = kind + "|" + field;
+            if (valuesByField.TryGetValue(key, out var found))
+                return found;
+            var values = new SortedSet<string>(StringComparer.Ordinal);
+            foreach (var (_, _, text) in ReferenceFiles())
+            {
+                if (!text.Contains($"\"{kind}\"", StringComparison.Ordinal))
+                    continue;
+                try
+                {
+                    using var doc = JsonDocument.Parse(text);
+                    var root = doc.RootElement;
+                    if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("Kind", out var rootKind) || !string.Equals(rootKind.GetString(), kind, StringComparison.OrdinalIgnoreCase)
+                        || !root.TryGetProperty("Items", out var items) || items.ValueKind != JsonValueKind.Array)
+                        continue;
+                    foreach (var item in items.EnumerateArray().Where(i => i.ValueKind == JsonValueKind.Object && i.TryGetProperty(field, out _)))
+                    {
+                        var value = item.GetProperty(field);
+                        if (value.ValueKind == JsonValueKind.String)
+                            values.UnionWith(value.GetString().Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+                        else if (value.ValueKind == JsonValueKind.Array)
+                            values.UnionWith(value.EnumerateArray().Where(v => v.ValueKind == JsonValueKind.String).Select(v => v.GetString()));
+                    }
+                }
+                catch (JsonException)
+                {
+                    // A broken file is the validator's business.
+                }
+            }
+            valuesByField[key] = values;
+            return values;
+        }
+
+        /// <summary>
+        /// Every file a reference can live in, of every loaded mod: JSON data (patches included) and scenario text, with their
+        /// texts (read now). Schemas, manifests and locale files are left out: they name no entity.
+        /// </summary>
+        public static IEnumerable<(string Mod, string Path, string Text)> ReferenceFiles()
+        {
+            var manager = ModManager.Instance;
+            if (manager?.Mods == null)
+                yield break;
+            foreach (var mod in manager.Mods.Keys.ToList())
+            {
+                foreach (var path in AllFiles(manager, mod, string.Empty).Where(IsReferenceFile).ToList())
+                {
+                    var text = manager.ReadFileText(mod, path);
+                    if (text != null)
+                        yield return (mod, path, text);
+                }
+            }
+        }
+
+        private static IEnumerable<string> AllFiles(ModManager manager, string mod, string directory)
+        {
+            foreach (var entry in manager.ListFiles(mod, directory))
+            {
+                if (entry.EndsWith("/"))
+                {
+                    foreach (var nested in AllFiles(manager, mod, entry.TrimEnd('/')))
+                        yield return nested;
+                }
+                else
+                {
+                    yield return entry.Replace('\\', '/');
+                }
+            }
+        }
+
+        private static bool IsReferenceFile(string path)
+            => (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || path.EndsWith(".scenario", StringComparison.OrdinalIgnoreCase))
+               && !path.StartsWith("schemas/", StringComparison.OrdinalIgnoreCase)
+               && !path.StartsWith("locale/", StringComparison.OrdinalIgnoreCase)
+               && !path.EndsWith("manifest.json", StringComparison.OrdinalIgnoreCase);
 
         private static void Ensure()
         {
