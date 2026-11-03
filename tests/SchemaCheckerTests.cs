@@ -59,5 +59,13 @@ namespace Cthangover.Mods.Schemas.Tests
             var positional = SchemaChecker.CheckPositional("t", Fields.Take(2).ToList(), new List<string> { "sword", "x" }, Exists);
             ModAssert.Equal(1, positional.Count, "positional values are checked by index");
         }
+
+        [ModTest("checker/choice_number_is_its_index")]
+        static void ChoiceNumberIsItsIndex(ModTestContext ctx)
+        {
+            var choice = new FieldSchema { Key = "Rare", Type = "choice", Options = new List<string> { "Common", "Uncommon", "Rare" } };
+            ModAssert.Equal(0, SchemaChecker.CheckValue("t", choice, "2", null).Count, "a number of the options is read as the option at that index");
+            ModAssert.Equal(1, SchemaChecker.CheckValue("t", choice, "3", null).Count, "a number past the options is an error");
+        }
     }
 }

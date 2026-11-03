@@ -21,7 +21,8 @@ namespace Cthangover.Mods.Schemas
         /// <see cref="Group"/>), <c>formula</c>, <c>condition</c>, <c>who</c> (player, party
         /// or a character), <c>scene</c>, <c>flag</c>, <c>label</c>, <c>list</c> (objects of
         /// <see cref="Of"/>), <c>map</c> (keys from <see cref="Kind"/> to numbers or formulas),
-        /// <c>json</c>.
+        /// <c>pick</c> (the values of <see cref="From"/> across the entities of <see cref="Kind"/>; not a reference),
+        /// <c>stages</c> (step number → locale key, a text per language), <c>json</c>.
         /// </summary>
         public string Type { get; set; } = "text";
 
