@@ -96,7 +96,9 @@ namespace Cthangover.Mods.Schemas
                         issues.Add(new SchemaIssue(false, "SCHEMA_BAD_VALUE", $"'{owner}': '{field.Key}' should be 1 or 0, got '{value}'"));
                     break;
                 case "choice":
-                    if (field.Options is { Count: > 0 } && !field.Options.Contains(value, StringComparer.OrdinalIgnoreCase))
+                    // The engine reads an enum by its name or by its number: a number is its index in the options.
+                    if (field.Options is { Count: > 0 } && !field.Options.Contains(value, StringComparer.OrdinalIgnoreCase)
+                        && !(int.TryParse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var index) && index >= 0 && index < field.Options.Count))
                         issues.Add(new SchemaIssue(false, "SCHEMA_BAD_VALUE", $"'{owner}': '{field.Key}' is one of {string.Join(", ", field.Options)}, got '{value}'"));
                     break;
                 case "ref":
