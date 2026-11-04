@@ -95,3 +95,7 @@ Trình kiểm tra báo những điều tương tự dưới mã `SCHEMA_MISSING_
 1. **Hành động không có trong bảng lệnh.** Không mod nào đã tải mô tả nó; hành động vẫn chạy trong kịch bản.
 2. **Một trường hiện thành ô văn bản thường.** Kiểu của nó lạ, hoặc trường không có mô tả nào (Trình sửa dữ liệu khi đó hiện nó trong phần trường khác, dưới dạng JSON).
 3. **Biểu mẫu bỏ qua lược đồ của bạn.** Một mod đứng sau trong thứ tự tải đã mô tả cùng hành động và thay thế mô tả của bạn.
+
+## Biểu thức dùng chung
+
+`expressions_base` cung cấp phép tính: `set money=rnd(3,5)` lưu số nguyên gồm hai đầu mút, `cset total "1+2+${money}"` tính biểu thức. `set name value` vẫn lưu chuỗi nguyên văn. Lỗi dừng hội thoại trước hành động phụ thuộc. Xem [hướng dẫn bộ biểu thức](../../expressions_base/docs/en.md) về cú pháp và mở rộng.
