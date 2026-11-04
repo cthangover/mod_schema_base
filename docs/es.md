@@ -95,3 +95,7 @@ El validador informa de lo mismo como `SCHEMA_MISSING_PARAM`, `SCHEMA_UNKNOWN_PA
 1. **Una acción no aparece en la paleta.** Ningún mod cargado la describe; la acción sigue funcionando en los escenarios.
 2. **Un campo se muestra como caja de texto sencilla.** Su tipo es desconocido, o el campo no tiene descripción alguna (el Editor de datos lo muestra entonces entre otros campos, como JSON).
 3. **Un formulario ignora tu esquema.** Un mod más tarde en el orden de carga describió la misma acción y sustituyó la tuya.
+
+## Expresiones compartidas
+
+`expressions_base` aporta los cálculos: `set money=rnd(3,5)` guarda un entero inclusivo, `cset total "1+2+${money}"` calcula una expresión. `set name value` conserva texto literal. Los errores detienen el diálogo antes de las acciones dependientes. Véase la [guía del motor de expresiones](../../expressions_base/docs/en.md) para la sintaxis y las extensiones.
