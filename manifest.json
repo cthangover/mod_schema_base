@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": "ct",
   "description": "Lets every mod describe its scenario actions, DSL commands and data fields as data; the tools build forms, pickers and checks from these descriptions.",
-  "category": "engine, library",
+  "categories": ["engine", "library"],
   "sources": [
     "src/**/*.cs"
   ],
