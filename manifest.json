@@ -1,7 +1,7 @@
 {
   "id": "schema_base",
   "name": "Schemas",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "author": "ct",
   "description": "Lets every mod describe its scenario actions, DSL commands and data fields as data; the tools build forms, pickers and checks from these descriptions.",
   "category": "engine, library",
@@ -12,6 +12,6 @@
     "tests/*.cs"
   ],
   "depends": [
-    "expressions_base>=1"
+    "expressions_base>=0.1.0"
   ]
 }
